@@ -171,6 +171,10 @@ void CtcpParser::parse(IrcEventRawMessage *e, Message::Type messagetype)
                            ? Message::Redirected
                            : Message::None;
 
+    if (e->testFlag(EventManager::Self)) {
+        flags |= Message::Self;
+    }
+
     bool isStatusMsg = false;
 
     // First remove all statusmsg prefix characters that are not also channel prefix characters.

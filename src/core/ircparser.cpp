@@ -189,7 +189,15 @@ void IrcParser::processNetworkIncoming(NetworkDataEvent *e)
 
                 msg = decrypt(net, target, msg);
 
-                events << new IrcEventRawMessage(EventManager::IrcEventRawPrivmsg, net, msg, prefix, target, e->timestamp());
+                // certain proxies emit PRIVMSGs using our own nick when they send a message -- make the message appear in the correct buffer
+                if (net->isMyNick(senderNick)) {
+                        IrcEventRawMessage* event = new IrcEventRawMessage(EventManager::IrcEventRawPrivmsg, net, msg, prefix, params[0], e->timestamp());
+                        event->setFlag(EventManager::Self);
+                        events << event;
+                }
+                else {
+                        events << new IrcEventRawMessage(EventManager::IrcEventRawPrivmsg, net, msg, prefix, target, e->timestamp());
+                }
             }
         }
         break;
